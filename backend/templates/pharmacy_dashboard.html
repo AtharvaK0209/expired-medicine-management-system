@@ -42,12 +42,28 @@
             </div>
         </div>
 
-    </div>
+    </div><div class="d-flex justify-content-between align-items-center mt-4 mb-3">
 
-<div class="mt-5 text-center">
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMedicineModal">
+    <!-- Search Box -->
+    <input
+        type="text"
+        id="searchMedicine"
+        class="form-control w-50"
+        placeholder="Search medicine..."
+        onkeyup="searchMedicine()"
+    >
+
+    <!-- Add Medicine Button -->
+    <button
+        class="btn btn-success ms-3"
+        data-bs-toggle="modal"
+        data-bs-target="#addMedicineModal"
+    >
         Add Medicine
     </button>
+
+
+
     <!-- ADD MEDICINE MODAL -->
 <div class="modal fade" id="addMedicineModal" tabindex="-1">
   <div class="modal-dialog">
@@ -61,7 +77,6 @@
       <div class="modal-body">
         <form id="addMedicineForm">
 
-          <input class="form-control mb-3" id="barcode" placeholder="Barcode Number (optional)">
           <input class="form-control mb-3" id="medicine_name" placeholder="Medicine Name" required>
           <input class="form-control mb-3" id="quantity" type="number" placeholder="Quantity" required>
           <input class="form-control mb-3" id="expiry_date" type="date" required>
@@ -77,6 +92,7 @@
   </div>
 </div>
 </div>
+
 
 <hr class="mt-5">
 
@@ -112,7 +128,6 @@ let res = await fetch("/add-medicine",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-barcode: barcode.value,
 medicine_name: medicine_name.value,
 quantity: quantity.value,
 expiry_date: expiry_date.value,
@@ -122,9 +137,21 @@ user_id: user_id
 })
 });
 
-let data = await res.json();
-alert(data.message);
-loadMedicines();
+let data;
+
+try {
+    data = await res.json();
+} catch {
+    alert("Server error. Check Flask terminal.");
+    return;
+}
+
+if(res.ok){
+    alert(data.message);
+    loadMedicines();
+}else{
+    alert(data.message);
+}
 }
 
 async function loadMedicines(){

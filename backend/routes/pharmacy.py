@@ -9,7 +9,6 @@ def add_medicine():
 
     data = request.get_json()
 
-    barcode = data.get("barcode")
     medicine_name = data.get("medicine_name")
     quantity = data.get("quantity")
     expiry_date = data.get("expiry_date")
@@ -42,12 +41,19 @@ def add_medicine():
         status = "SAFE"
 
     cursor.execute("""
-    INSERT INTO medicines
-    (pharmacy_id, barcode, medicine_name, quantity, expiry_date,
-     original_price, discount_price, status)
-    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-""", (pharmacy_id, barcode, medicine_name, quantity,
-      expiry_date, original_price, discount_price, status))
+INSERT INTO medicines
+(pharmacy_id, medicine_name, quantity, expiry_date,
+ original_price, discount_price, status)
+VALUES (%s,%s,%s,%s,%s,%s,%s)
+""", (
+    pharmacy_id,
+    medicine_name,
+    quantity,
+    expiry_date,
+    original_price,
+    discount_price,
+    status
+))
 
     conn.commit()
     cursor.close()
