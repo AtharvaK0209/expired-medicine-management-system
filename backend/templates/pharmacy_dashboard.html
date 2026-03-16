@@ -95,7 +95,7 @@
 
 
 <hr class="mt-5">
-
+<div id="expiryAlert" class="mb-4"></div>
 <h4 class="mt-4">Medicine Inventory</h4>
 
 <table class="table table-bordered mt-3">
@@ -175,27 +175,56 @@ total++;
 if(med.status === "NEAR_EXPIRY") near++;
 if(med.status === "EXPIRED") expired++;
 
-let deleteBtn = "";
+let statusBadge = "";
 
-if(med.status === "EXPIRED"){
-deleteBtn = `<button class="btn btn-danger btn-sm" onclick="deleteMedicine(${med.medicine_id})">Delete</button>`;
+if(med.status === "SAFE"){
+    statusBadge = `<span class="badge bg-success">SAFE</span>`;
 }
+else if(med.status === "NEAR_EXPIRY"){
+    statusBadge = `<span class="badge bg-warning text-dark">NEAR EXPIRY</span>`;
+}
+else{
+    statusBadge = `<span class="badge bg-danger">EXPIRED</span>`;
+}
+
+let deleteBtn = `<button class="btn btn-danger btn-sm" onclick="deleteMedicine(${med.medicine_id})">Delete</button>`;;
 
 table.innerHTML += `
 <tr>
 <td>${med.medicine_name}</td>
 <td>${med.quantity}</td>
 <td>${med.expiry_date}</td>
-<td>${med.status}</td>
+<td>${statusBadge}</td>
 <td>${deleteBtn}</td>
 </tr>
 `;
 });
 
+let alertBox = document.getElementById("expiryAlert");
+
+alertBox.innerHTML = "";
+
+if(expired > 0){
+alertBox.innerHTML += `
+<div class="alert alert-danger">
+❌ ${expired} medicine(s) have expired. Please remove or dispose them.
+</div>
+`;
+}
+
+if(near > 0){
+alertBox.innerHTML += `
+<div class="alert alert-warning">
+⚠ ${near} medicine(s) are near expiry. Consider redistribution or discount.
+</div>
+`;
+}
+
 document.getElementById("total").innerText = total;
 document.getElementById("near").innerText = near;
 document.getElementById("expired").innerText = expired;
 }
+
 
 loadMedicines();
 

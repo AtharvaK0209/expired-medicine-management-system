@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import get_db_connection
 from datetime import datetime
+from email_service import send_expiry_alert
 
 pharmacy_bp = Blueprint("pharmacy", __name__)
 
@@ -77,10 +78,34 @@ def get_medicines(user_id):
 
     medicines = cursor.fetchall()
 
+    expired = 0
+    near = 0
+
+    for med in medicines:
+        if med["status"] == "EXPIRED":
+            expired += 1
+        elif med["status"] == "NEAR_EXPIRY":
+            near += 1
+
+    # get user email
+    cursor.execute("""
+        SELECT email FROM users
+        WHERE user_id=%s
+    """, (user_id,))
+
+    user = cursor.fetchone()
+
+    if user:
+        email = user["email"]
+
+        if expired > 0 or near > 0:
+            send_expiry_alert(email, expired, near)
+
     cursor.close()
     conn.close()
 
     return jsonify(medicines)
+
 
 @pharmacy_bp.route("/delete-medicine/<int:medicine_id>", methods=["DELETE"])
 def delete_medicine(medicine_id):
